@@ -1,11 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" type="text/css" href="homePage.css">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
-<h1 th:text="${message}"></h1>
+<div class="container">
+    <h1 class="logo">青岛博大门窗科技有限公司订单系统</h1>
 
+    <div class="search">
+        <form>
+            <input type="text" placeholder="输入搜索关键词...">
+            <input type="submit" value="搜索">
+        </form>
+    </div>
+
+    <div class="form">
+        <h2>添加订单</h2>
+        <form>
+            <input type="text" placeholder="产品名称">
+            <input type="text" placeholder="产品编号">
+            <input type="text" placeholder="产品规格">
+            <input type="number" placeholder="产品数量" min="0">
+            <select>
+                <option value="">-- 选择一个分局 --</option>
+                <option value="分局1">分局1</option>
+                <option value="分局2">分局2</option>
+                <option value="分局3">分局3</option>
+                <option value="分局4">分局4</option>
+                <option value="分局5">分局5</option>
+                <option value="分局6">分局6</option>
+                <option value="分局7">分局7</option>
+                <option value="分局8">分局8</option>
+                <option value="分局9">分局9</option>
+            </select>
+            <input type="submit" value="添加">
+        </form>
+    </div>
+</div>
+</div>
 </body>
 </html>
