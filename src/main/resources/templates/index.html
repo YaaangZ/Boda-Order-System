@@ -14,7 +14,7 @@
                 <form id="getOrderForm">
                     <div class="input-group">
                         <input type="text" placeholder="输入订单编号..." id="orderId">
-                        <input type="submit" value="查找" onclick="getOrder()">
+                        <input type="submit" value="查找" onclick="getOrder(event)">
                     </div>
                 </form>
             </div>
@@ -23,7 +23,7 @@
                 <form id="addOrderForm">
                     <input type="text" placeholder="产品名称" id="productName">
                     <input type="text" placeholder="产品编号" id="productId">
-                    <input type="text" placeholder="学校名称" id="productSchool">
+                    <input type="text" placeholder="学校名称" id="schoolName">
                     <input type="text" placeholder="产品规格" id="productSpecification">
                     <input type="number" placeholder="产品数量" id="productQuantity" min="0">
                     <select id="branchName">
@@ -42,52 +42,69 @@
                     <input type="date" placeholder="创建日期" id="orderDate">
                     </span>
 
-                    <input type="submit" value="添加" onclick="addOrder()">
+                    <input type="submit" value="添加" onclick="addOrder(event)">
                 </form>
             </div>
         </div>
     </div>
 
     <script>
-        function addOrder() {
-          const form = document.getElementById("addOrderForm");
-          const formData = new FormData(form);
+        function addOrder(event) {
+        event.preventDefault();
+        const productName = document.getElementById("productName").value;
+        const productId = document.getElementById("productId").value;
+        const schoolName = document.getElementById("schoolName").value;
+        const productSpecification = document.getElementById("productSpecification").value;
+        const productQuantity = document.getElementById("productQuantity").value;
+        const branchName = document.getElementById("branchName").value;
+        const orderDate = document.getElementById("orderDate").value;
 
-          const orderDate = document.getElementById("orderDate");
-          if (orderDate.value === "") {
+        if (orderDate === "") {
             const datePrompt = document.getElementById("datePrompt");
             datePrompt.style.display = "inline";
-            event.preventDefault();
             return;
-          } else {
+        } else {
             const datePrompt = document.getElementById("datePrompt");
             datePrompt.style.display = "none";
-          }
-
-          fetch("/orders", {
-            method: "POST",
-            body: formData
-          }).then(response => {
-            if (response.ok) {
-              alert("订单添加成功！");
-              form.reset();
-            } else {
-              alert("订单添加失败！");
-            }
-          }).catch(error => {
-            alert("网络错误，请重试！");
-          });
         }
 
-        function getOrder() {
-            const form = document.getElementById("getOrderForm");
+        const order = {
+            productName,
+            productId,
+            schoolName,
+            productSpecification,
+            productQuantity: parseInt(productQuantity),
+            branchName,
+            orderDate
+        };
+
+        fetch("/orders", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(order)
+        }).then(response => {
+            if (response.ok) {
+                alert("订单添加成功！");
+                document.getElementById("addOrderForm").reset();
+            } else {
+                alert("订单添加失败！");
+            }
+        }).catch(error => {
+            alert("网络错误，请重试！");
+        });
+    }
+
+        function getOrder(event) {
+            event.preventDefault();
             const orderId = document.getElementById("orderId").value;
 
             fetch(`/orders/${orderId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data) {
-                        alert(`订单编号：${data.id}\n产品名称：${data.productName}\n产品编号：${data.productId}\n产品规格：${data.productSpecification}\n产品数量：${data.productQuantity}\n分局名称：${data.branchName}`);
+                        alert(`订单编号：${data.id}\n产品名称：${data.productName}\n产品编号：${data.productId}\n学校名称：${data.schoolName}\n产品规格：${data.productSpecification}\n产品数量：${data.productQuantity}\n分局名称：${data.branchName}\n订单日期：${data.orderDate}`);
                     } else {
                         alert("未找到相关订单！");
                     }
