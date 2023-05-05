@@ -6,39 +6,96 @@
     <title>Title</title>
 </head>
 <body>
-<div class="container">
-    <h1 class="logo">青岛博大门窗科技有限公司订单系统</h1>
+    <div class="container">
+        <h1 class="logo">青岛博大门窗科技有限公司订单系统</h1>
+        <div class="form-container">
+            <div class="form">
+                <h2>查找订单</h2>
+                <form id="getOrderForm">
+                    <div class="input-group">
+                        <input type="text" placeholder="输入订单编号..." id="orderId">
+                        <input type="submit" value="查找" onclick="getOrder()">
+                    </div>
+                </form>
+            </div>
+            <div class="form">
+                <h2>添加订单</h2>
+                <form id="addOrderForm">
+                    <input type="text" placeholder="产品名称" id="productName">
+                    <input type="text" placeholder="产品编号" id="productId">
+                    <input type="text" placeholder="学校名称" id="productSchool">
+                    <input type="text" placeholder="产品规格" id="productSpecification">
+                    <input type="number" placeholder="产品数量" id="productQuantity" min="0">
+                    <select id="branchName">
+                        <option value="">-- 选择一个分局 --</option>
+                        <option value="分局1">电建国际</option>
+                        <option value="分局2">电建市政</option>
+                        <option value="分局3">山东电建</option>
+                        <option value="分局4">湖北电建</option>
+                        <option value="分局5">电建4局</option>
+                        <option value="分局6">电建11局</option>
+                        <option value="分局7">分局7</option>
+                        <option value="分局8">分局8</option>
+                        <option value="分局9">分局9</option>
+                    </select>
+                    <span id="datePrompt" style="color: #696969">-- 请选择订单创建日期 --</span>
+                    <input type="date" placeholder="创建日期" id="orderDate">
+                    </span>
 
-    <div class="search">
-        <form>
-            <input type="text" placeholder="输入搜索关键词...">
-            <input type="submit" value="搜索">
-        </form>
+                    <input type="submit" value="添加" onclick="addOrder()">
+                </form>
+            </div>
+        </div>
     </div>
 
-    <div class="form">
-        <h2>添加订单</h2>
-        <form>
-            <input type="text" placeholder="产品名称">
-            <input type="text" placeholder="产品编号">
-            <input type="text" placeholder="产品规格">
-            <input type="number" placeholder="产品数量" min="0">
-            <select>
-                <option value="">-- 选择一个分局 --</option>
-                <option value="分局1">分局1</option>
-                <option value="分局2">分局2</option>
-                <option value="分局3">分局3</option>
-                <option value="分局4">分局4</option>
-                <option value="分局5">分局5</option>
-                <option value="分局6">分局6</option>
-                <option value="分局7">分局7</option>
-                <option value="分局8">分局8</option>
-                <option value="分局9">分局9</option>
-            </select>
-            <input type="submit" value="添加">
-        </form>
-    </div>
-</div>
+    <script>
+        function addOrder() {
+          const form = document.getElementById("addOrderForm");
+          const formData = new FormData(form);
+
+          const orderDate = document.getElementById("orderDate");
+          if (orderDate.value === "") {
+            const datePrompt = document.getElementById("datePrompt");
+            datePrompt.style.display = "inline";
+            event.preventDefault();
+            return;
+          } else {
+            const datePrompt = document.getElementById("datePrompt");
+            datePrompt.style.display = "none";
+          }
+
+          fetch("/orders", {
+            method: "POST",
+            body: formData
+          }).then(response => {
+            if (response.ok) {
+              alert("订单添加成功！");
+              form.reset();
+            } else {
+              alert("订单添加失败！");
+            }
+          }).catch(error => {
+            alert("网络错误，请重试！");
+          });
+        }
+
+        function getOrder() {
+            const form = document.getElementById("getOrderForm");
+            const orderId = document.getElementById("orderId").value;
+
+            fetch(`/orders/${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data) {
+                        alert(`订单编号：${data.id}\n产品名称：${data.productName}\n产品编号：${data.productId}\n产品规格：${data.productSpecification}\n产品数量：${data.productQuantity}\n分局名称：${data.branchName}`);
+                    } else {
+                        alert("未找到相关订单！");
+                    }
+                }).catch(error => {
+                alert("网络错误，请重试！");
+            });
+        }
+    </script>
 </div>
 </body>
 </html>
