@@ -6,49 +6,60 @@
     <title>Title</title>
 </head>
 <body>
-    <div class="container">
-        <h1 class="logo">青岛博大门窗科技有限公司订单系统</h1>
-        <div class="form-container">
-            <div class="form">
-                <h2>查找订单</h2>
-                <form id="getOrderForm">
-                    <div class="input-group">
-                        <input type="text" placeholder="输入订单编号..." id="orderId">
-                        <input type="submit" value="查找" onclick="getOrder(event)">
-                    </div>
-                </form>
-            </div>
-            <div class="form">
-                <h2>添加订单</h2>
-                <form id="addOrderForm">
-                    <input type="text" placeholder="产品名称" id="productName">
-                    <input type="text" placeholder="产品编号" id="productId">
-                    <input type="text" placeholder="学校名称" id="schoolName">
-                    <input type="text" placeholder="产品规格" id="productSpecification">
-                    <input type="number" placeholder="产品数量" id="productQuantity" min="0">
-                    <select id="branchName">
-                        <option value="">-- 选择一个分局 --</option>
-                        <option value="电建国际">电建国际</option>
-                        <option value="电建市政">电建市政</option>
-                        <option value="山东电建">山东电建</option>
-                        <option value="湖北电建">湖北电建</option>
-                        <option value="电建4局">电建4局</option>
-                        <option value="电建11局">电建11局</option>
-                        <option value="分局7">分局7</option>
-                        <option value="分局8">分局8</option>
-                        <option value="分局9">分局9</option>
-                    </select>
-                    <span id="datePrompt" style="color: #696969">-- 请选择订单创建日期 --</span>
-                    <input type="date" placeholder="创建日期" id="orderDate">
-                    </span>
+<div class="container">
+    <h1 class="logo">青岛博大门窗科技有限公司订单系统</h1>
+    <div class="form-container">
+        <div class="form">
+            <h2>查找订单</h2>
+            <form id="getOrderForm">
+                <div class="input-group">
+                    <input type="text" placeholder="输入订单编号..." id="orderId">
+                    <input type="submit" value="查找" onclick="getOrder(event)">
+                </div>
+            </form>
+        </div>
 
-                    <input type="submit" value="添加" onclick="addOrder(event)">
-                </form>
-            </div>
+        <div class="form">
+            <h2>所有订单</h2>
+            <button onclick="getAllOrders(event)">一键查询所有订单</button>
+            <table id="ordersTable">
+                <thead>
+                <tr></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="form">
+            <h2>添加订单</h2>
+            <form id="addOrderForm">
+                <input type="text" placeholder="产品名称" id="productName">
+                <input type="text" placeholder="产品编号" id="productId">
+                <input type="text" placeholder="学校名称" id="schoolName">
+                <input type="text" placeholder="产品规格" id="productSpecification">
+                <input type="number" placeholder="产品数量" id="productQuantity" min="0">
+                <select id="branchName">
+                    <option value="">-- 选择一个分局 --</option>
+                    <option value="电建国际">电建国际</option>
+                    <option value="电建市政">电建市政</option>
+                    <option value="山东电建">山东电建</option>
+                    <option value="湖北电建">湖北电建</option>
+                    <option value="电建4局">电建4局</option>
+                    <option value="电建11局">电建11局</option>
+                    <option value="分局7">分局7</option>
+                    <option value="分局8">分局8</option>
+                    <option value="分局9">分局9</option>
+                </select>
+                <span id="datePrompt" style="color: #696969">-- 请选择订单创建日期 --</span>
+                <input type="date" placeholder="创建日期" id="orderDate">
+                </span>
+                <input type="submit" value="添加" onclick="addOrder(event)">
+            </form>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
         function addOrder(event) {
         event.preventDefault();
         const productName = document.getElementById("productName").value;
@@ -99,20 +110,59 @@
         function getOrder(event) {
             event.preventDefault();
             const orderId = document.getElementById("orderId").value;
-
+            console.log(`Fetching order with ID ${orderId}`); // 添加的log
             fetch(`/orders/${orderId}`)
-                .then(response => response.json())
+                .then(response => response.text())
+                .then(data => JSON.parse(data))
                 .then(data => {
                     if (data) {
+                        console.log("Order found:", data); // 添加的log
                         alert(`订单编号：${data.id}\n产品名称：${data.productName}\n产品编号：${data.productId}\n学校名称：${data.schoolName}\n产品规格：${data.productSpecification}\n产品数量：${data.productQuantity}\n分局名称：${data.branchName}\n订单日期：${data.orderDate}`);
                     } else {
+                        console.log("Order not found."); // 添加的log
                         alert("未找到相关订单！");
                     }
                 }).catch(error => {
+                console.error("Error fetching order:", error); // 添加的log
                 alert("网络错误，请重试！");
             });
         }
-    </script>
+
+        function getAllOrders(event) {
+          event.preventDefault();
+          console.log("Fetching all orders."); // 添加的log
+          fetch("/orders")
+            .then(response => response.text())
+            .then(data => JSON.parse(data))
+            .then(data => {
+              const tableHead = document.getElementById("ordersTable").querySelector("thead tr");
+              tableHead.innerHTML = "<th>订单编号</th><th>产品名称</th><th>产品编号</th><th>学校名称</th><th>产品规格</th><th>产品数量</th><th>分局名称</th><th>订单日期</th>";
+
+              const tableBody = document.getElementById("ordersTable").querySelector("tbody");
+              tableBody.innerHTML = "";
+
+              data.forEach(order => {
+                const row = `
+                  <tr>
+                    <td>${order.id}</td>
+                    <td>${order.productName}</td>
+                    <td>${order.productId}</td>
+                    <td>${order.schoolName}</td>
+                    <td>${order.productSpecification}</td>
+                    <td>${order.productQuantity}</td>
+                    <td>${order.branchName}</td>
+                    <td>${order.orderDate}</td>
+                  </tr>
+                `;
+                tableBody.insertAdjacentHTML("beforeend", row);
+              });
+            })
+            .catch(error => {
+                console.error("Error fetching all orders:", error); // 添加的log
+                alert("网络错误，请重试！");
+            });
+        }
+</script>
 </div>
 </body>
 </html>
